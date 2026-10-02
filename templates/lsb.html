@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Encode and decode text using Least Significant Bit image steganography.">
+	<title>LSB Steganography | StegaVision</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+	<script src="{{ url_for('static', filename='js/lsb.js') }}" defer></script>
+</head>
+<body>
+	<a class="skip-link" href="#mainContent">Skip to content</a>
+	<header class="site-header">
+		<div class="site-header__inner">
+			<a class="brand" href="{{ url_for('index') }}" aria-label="StegaVision home">
+				<span class="brand__name">StegaVision</span>
+				<span class="brand__subtitle">Image Steganography &amp; Analysis Platform</span>
+			</a>
+			<nav class="primary-nav" aria-label="Main navigation">
+				<a href="{{ url_for('index') }}">Home</a>
+				<a href="{{ url_for('lsb_page') }}" aria-current="page">LSB Steganography</a>
+				<a href="{{ url_for('dct_page') }}">DCT Steganography</a>
+				<a href="{{ url_for('analysis_page') }}">Image Analysis</a>
+				<a href="{{ url_for('steganalysis_page') }}">Steganalysis</a>
+				<a href="{{ url_for('about_page') }}">About</a>
+			</nav>
+		</div>
+	</header>
+
+	<main id="mainContent" class="page-shell" data-page="lsb">
+		<header class="page-heading">
+			<p class="eyebrow">Spatial-domain method</p>
+			<h1>LSB Steganography</h1>
+			<p>Hide and recover text by modifying the least significant bits of image pixels.</p>
+		</header>
+
+		<div class="tool-grid">
+			<section class="tool-panel" aria-labelledby="lsbEncodeTitle">
+				<div class="tool-panel__heading">
+					<p class="eyebrow">Section A · Encode</p>
+					<h2 id="lsbEncodeTitle">Encode Secret Message</h2>
+				</div>
+				<form id="lsbEncodeForm" class="tool-form" action="{{ url_for('lsb_encode_api') }}" method="post" enctype="multipart/form-data" data-api-endpoint="{{ url_for('lsb_encode_api') }}" data-capacity-endpoint="{{ url_for('lsb_capacity_api') }}">
+					<div class="form-field">
+						<span class="form-label" id="lsbEncodeUploadLabel">Cover image</span>
+						<div class="upload-dropzone" data-dropzone data-input="lsbEncodeImage" aria-describedby="lsbEncodeFileName lsbEncodeErrorMessage">
+							<p class="upload-dropzone__title">Drop an image here</p>
+							<p class="upload-dropzone__hint">PNG, JPG, JPEG, BMP or WEBP</p>
+							<label class="button button--secondary file-picker" for="lsbEncodeImage">Browse image</label>
+							<input class="visually-hidden file-input" id="lsbEncodeImage" name="image" type="file" accept="image/png,image/jpeg,image/bmp,image/webp" aria-labelledby="lsbEncodeUploadLabel" aria-describedby="lsbEncodeFileName lsbEncodeErrorMessage" required>
+							<p class="selected-filename" id="lsbEncodeFileName" aria-live="polite">No file selected</p>
+						</div>
+						<img class="image-preview" id="lsbEncodePreview" alt="Preview of the selected cover image" hidden>
+						<p class="form-message form-message--error" id="lsbEncodeErrorMessage" role="alert" aria-live="assertive"></p>
+					</div>
+
+					<div class="form-field">
+						<label class="form-label" for="lsbMessage">Secret Message</label>
+						<textarea id="lsbMessage" name="message" rows="5" placeholder="Enter the message you want to hide..." aria-describedby="lsbCharCount" required></textarea>
+						<p class="field-meta"><span>UTF-8 text</span><span id="lsbCharCount" aria-live="polite">0 characters</span></p>
+					</div>
+
+					<section class="capacity-panel" aria-labelledby="lsbCapacityTitle">
+						<div class="capacity-panel__heading">
+							<h3 id="lsbCapacityTitle">Capacity estimate</h3>
+							<button class="button button--quiet" id="lsbCalculateCapacityButton" type="button">Calculate Capacity</button>
+							<span class="loading-indicator" id="lsbCapacityLoading" role="status" aria-live="polite" hidden>Calculating capacity...</span>
+						</div>
+						<dl class="result-list" id="lsbCapacity" aria-live="polite">
+							<div><dt>Image dimensions</dt><dd><output id="lsbImageDimensions"></output></dd></div>
+							<div><dt>Available capacity</dt><dd><output id="lsbAvailableCapacity"></output></dd></div>
+							<div><dt>Message size</dt><dd><output id="lsbMessageSize"></output></dd></div>
+							<div><dt>Remaining capacity</dt><dd><output id="lsbRemainingCapacity"></output></dd></div>
+						</dl>
+						<p class="form-message" id="lsbCapacityStatus" role="status" aria-live="polite"></p>
+					</section>
+
+					<button class="button button--primary button--full" id="lsbEncodeButton" type="submit"><span class="button-label">Encode Message</span><span class="loading-indicator" id="lsbEncodeLoading" role="status" aria-live="polite" hidden>Encoding image...</span></button>
+					<p class="form-message form-message--success" id="lsbEncodeSuccessMessage" role="status" aria-live="polite"></p>
+				</form>
+
+				<section class="result-panel" id="lsbEncodeResult" aria-labelledby="lsbEncodeResultTitle" aria-live="polite" hidden>
+					<h3 id="lsbEncodeResultTitle">LSB Encoding Successful</h3>
+					<p id="lsbGeneratedFile"></p>
+					<a class="button button--secondary" id="lsbDownloadButton" download aria-disabled="true" hidden>Download stego image</a>
+					<dl class="result-list">
+						<div><dt>Capacity used</dt><dd><output id="lsbCapacityUsed"></output></dd></div>
+						<div><dt>MSE</dt><dd><output id="lsbMse"></output></dd></div>
+						<div><dt>PSNR</dt><dd><output id="lsbPsnr"></output></dd></div>
+						<div><dt>SSIM</dt><dd><output id="lsbSsim"></output></dd></div>
+					</dl>
+				</section>
+			</section>
+
+			<section class="tool-panel" aria-labelledby="lsbDecodeTitle">
+				<div class="tool-panel__heading">
+					<p class="eyebrow">Section B · Decode</p>
+					<h2 id="lsbDecodeTitle">Decode Secret Message</h2>
+				</div>
+				<form id="lsbDecodeForm" class="tool-form" action="{{ url_for('lsb_decode_api') }}" method="post" enctype="multipart/form-data" data-api-endpoint="{{ url_for('lsb_decode_api') }}">
+					<div class="form-field">
+						<span class="form-label" id="lsbDecodeUploadLabel">LSB stego image</span>
+						<div class="upload-dropzone" data-dropzone data-input="lsbDecodeImage" aria-describedby="lsbDecodeFileName lsbDecodeErrorMessage">
+							<p class="upload-dropzone__title">Drop an encoded image here</p>
+							<p class="upload-dropzone__hint">PNG, JPG, JPEG, BMP or WEBP</p>
+							<label class="button button--secondary file-picker" for="lsbDecodeImage">Browse image</label>
+							<input class="visually-hidden file-input" id="lsbDecodeImage" name="image" type="file" accept="image/png,image/jpeg,image/bmp,image/webp" aria-labelledby="lsbDecodeUploadLabel" aria-describedby="lsbDecodeFileName lsbDecodeErrorMessage" required>
+							<p class="selected-filename" id="lsbDecodeFileName" aria-live="polite">No file selected</p>
+						</div>
+						<img class="image-preview" id="lsbDecodePreview" alt="Preview of the selected LSB stego image" hidden>
+						<p class="form-message form-message--error" id="lsbDecodeErrorMessage" role="alert" aria-live="assertive"></p>
+					</div>
+					<button class="button button--primary button--full" id="lsbDecodeButton" type="submit"><span class="button-label">Decode Message</span><span class="loading-indicator" id="lsbDecodeLoading" role="status" aria-live="polite" hidden>Decoding image...</span></button>
+					<p class="form-message form-message--success" id="lsbDecodeSuccessMessage" role="status" aria-live="polite"></p>
+				</form>
+
+				<section class="result-panel" id="lsbDecodeResult" aria-labelledby="lsbDecodedTitle" aria-live="polite" hidden>
+					<h3 id="lsbDecodedTitle">Decoded Message</h3>
+					<output class="decoded-message" id="lsbDecodedMessage"></output>
+					<button class="button button--quiet" id="lsbCopyButton" type="button">Copy Message</button>
+					<p class="form-message" id="lsbCopyStatus" role="status" aria-live="polite"></p>
+				</section>
+			</section>
+		</div>
+	</main>
+
+	<footer class="site-footer">
+		<div class="site-footer__identity">
+			<p>StegaVision <span aria-hidden="true">·</span> Image Steganography &amp; Analysis Platform</p>
+			<p>Digital Image Processing <span aria-hidden="true">·</span> Student: Kundrapu Tharun Kumar <span aria-hidden="true">·</span> Enrollment: 24CS003203</p>
+		</div>
+		<a href="{{ url_for('about_page') }}">Project details</a>
+	</footer>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Encode and decode text using block DCT image steganography.">
+	<title>DCT Steganography | StegaVision</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+	<script src="{{ url_for('static', filename='js/dct.js') }}" defer></script>
+</head>
+<body>
+	<a class="skip-link" href="#mainContent">Skip to content</a>
+	<header class="site-header">
+		<div class="site-header__inner">
+			<a class="brand" href="{{ url_for('index') }}" aria-label="StegaVision home">
+				<span class="brand__name">StegaVision</span>
+				<span class="brand__subtitle">Image Steganography &amp; Analysis Platform</span>
+			</a>
+			<nav class="primary-nav" aria-label="Main navigation">
+				<a href="{{ url_for('index') }}">Home</a>
+				<a href="{{ url_for('lsb_page') }}">LSB Steganography</a>
+				<a href="{{ url_for('dct_page') }}" aria-current="page">DCT Steganography</a>
+				<a href="{{ url_for('analysis_page') }}">Image Analysis</a>
+				<a href="{{ url_for('steganalysis_page') }}">Steganalysis</a>
+				<a href="{{ url_for('about_page') }}">About</a>
+			</nav>
+		</div>
+	</header>
+
+	<main id="mainContent" class="page-shell" data-page="dct">
+		<header class="page-heading">
+			<p class="eyebrow">Frequency-domain method</p>
+			<h1>DCT Steganography</h1>
+			<p>Hide information using selected mid-frequency Discrete Cosine Transform coefficients.</p>
+		</header>
+
+		<div class="tool-grid">
+			<section class="tool-panel" aria-labelledby="dctEncodeTitle">
+				<div class="tool-panel__heading">
+					<p class="eyebrow">Section A · Encode</p>
+					<h2 id="dctEncodeTitle">Encode Secret Message</h2>
+				</div>
+				<form id="dctEncodeForm" class="tool-form" action="{{ url_for('dct_encode_api') }}" method="post" enctype="multipart/form-data" data-api-endpoint="{{ url_for('dct_encode_api') }}" data-capacity-endpoint="{{ url_for('dct_capacity_api') }}">
+					<div class="form-field">
+						<span class="form-label" id="dctEncodeUploadLabel">Cover image</span>
+						<div class="upload-dropzone" data-dropzone data-input="dctEncodeImage" aria-describedby="dctEncodeFileName dctEncodeErrorMessage">
+							<p class="upload-dropzone__title">Drop an image here</p>
+							<p class="upload-dropzone__hint">PNG, JPG, JPEG, BMP or WEBP</p>
+							<label class="button button--secondary file-picker" for="dctEncodeImage">Browse image</label>
+							<input class="visually-hidden file-input" id="dctEncodeImage" name="image" type="file" accept="image/png,image/jpeg,image/bmp,image/webp" aria-labelledby="dctEncodeUploadLabel" aria-describedby="dctEncodeFileName dctEncodeErrorMessage" required>
+							<p class="selected-filename" id="dctEncodeFileName" aria-live="polite">No file selected</p>
+						</div>
+						<img class="image-preview" id="dctEncodePreview" alt="Preview of the selected cover image" hidden>
+						<p class="form-message form-message--error" id="dctEncodeErrorMessage" role="alert" aria-live="assertive"></p>
+					</div>
+
+					<div class="form-field">
+						<label class="form-label" for="dctMessage">Secret Message</label>
+						<textarea id="dctMessage" name="message" rows="5" placeholder="Enter the message you want to hide..." aria-describedby="dctCharCount" required></textarea>
+						<p class="field-meta"><span>UTF-8 text</span><span id="dctCharCount" aria-live="polite">0 characters</span></p>
+					</div>
+
+					<section class="capacity-panel" aria-labelledby="dctCapacityTitle">
+						<div class="capacity-panel__heading">
+							<h3 id="dctCapacityTitle">Capacity estimate</h3>
+							<button class="button button--quiet" id="dctCalculateCapacityButton" type="button">Calculate Capacity</button>
+							<span class="loading-indicator" id="dctCapacityLoading" role="status" aria-live="polite" hidden>Calculating capacity...</span>
+						</div>
+						<dl class="result-list" id="dctCapacity" aria-live="polite">
+							<div><dt>Usable 8×8 blocks</dt><dd><output id="dctBlockCount"></output></dd></div>
+							<div><dt>Available capacity</dt><dd><output id="dctAvailableCapacity"></output></dd></div>
+							<div><dt>Message size</dt><dd><output id="dctMessageSize"></output></dd></div>
+							<div><dt>Remaining capacity</dt><dd><output id="dctRemainingCapacity"></output></dd></div>
+						</dl>
+						<p class="form-message" id="dctCapacityStatus" role="status" aria-live="polite"></p>
+					</section>
+
+					<button class="button button--primary button--full" id="dctEncodeButton" type="submit"><span class="button-label">Encode Message</span><span class="loading-indicator" id="dctEncodeLoading" role="status" aria-live="polite" hidden>Encoding image...</span></button>
+					<p class="form-message form-message--success" id="dctEncodeSuccessMessage" role="status" aria-live="polite"></p>
+				</form>
+
+				<section class="result-panel" id="dctEncodeResult" aria-labelledby="dctEncodeResultTitle" aria-live="polite" hidden>
+					<h3 id="dctEncodeResultTitle">DCT Encoding Successful</h3>
+					<p id="dctGeneratedFile"></p>
+					<img class="image-preview" id="dctStegoPreview" alt="Generated DCT stego image" hidden>
+					<a class="button button--secondary" id="dctDownloadButton" download aria-disabled="true" hidden>Download stego image</a>
+					<dl class="result-list">
+						<div><dt>Capacity used</dt><dd><output id="dctCapacityUsed"></output></dd></div>
+						<div><dt>MSE</dt><dd><output id="dctMse"></output></dd></div>
+						<div><dt>PSNR</dt><dd><output id="dctPsnr"></output></dd></div>
+						<div><dt>SSIM</dt><dd><output id="dctSsim"></output></dd></div>
+					</dl>
+				</section>
+			</section>
+
+			<section class="tool-panel" aria-labelledby="dctDecodeTitle">
+				<div class="tool-panel__heading">
+					<p class="eyebrow">Section B · Decode</p>
+					<h2 id="dctDecodeTitle">Decode Secret Message</h2>
+				</div>
+				<form id="dctDecodeForm" class="tool-form" action="{{ url_for('dct_decode_api') }}" method="post" enctype="multipart/form-data" data-api-endpoint="{{ url_for('dct_decode_api') }}">
+					<div class="form-field">
+						<span class="form-label" id="dctDecodeUploadLabel">DCT stego image</span>
+						<div class="upload-dropzone" data-dropzone data-input="dctDecodeImage" aria-describedby="dctDecodeFileName dctDecodeErrorMessage">
+							<p class="upload-dropzone__title">Drop an encoded image here</p>
+							<p class="upload-dropzone__hint">PNG, JPG, JPEG, BMP or WEBP</p>
+							<label class="button button--secondary file-picker" for="dctDecodeImage">Browse image</label>
+							<input class="visually-hidden file-input" id="dctDecodeImage" name="image" type="file" accept="image/png,image/jpeg,image/bmp,image/webp" aria-labelledby="dctDecodeUploadLabel" aria-describedby="dctDecodeFileName dctDecodeErrorMessage" required>
+							<p class="selected-filename" id="dctDecodeFileName" aria-live="polite">No file selected</p>
+						</div>
+						<img class="image-preview" id="dctDecodePreview" alt="Preview of the selected DCT stego image" hidden>
+						<p class="form-message form-message--error" id="dctDecodeErrorMessage" role="alert" aria-live="assertive"></p>
+					</div>
+					<button class="button button--primary button--full" id="dctDecodeButton" type="submit"><span class="button-label">Decode Message</span><span class="loading-indicator" id="dctDecodeLoading" role="status" aria-live="polite" hidden>Decoding image...</span></button>
+					<p class="form-message form-message--success" id="dctDecodeSuccessMessage" role="status" aria-live="polite"></p>
+				</form>
+
+				<section class="result-panel" id="dctDecodeResult" aria-labelledby="dctDecodedTitle" aria-live="polite" hidden>
+					<h3 id="dctDecodedTitle">Decoded Message</h3>
+					<output class="decoded-message" id="dctDecodedMessage"></output>
+					<button class="button button--quiet" id="dctCopyButton" type="button">Copy Message</button>
+					<p class="form-message" id="dctCopyStatus" role="status" aria-live="polite"></p>
+				</section>
+			</section>
+		</div>
+
+		<section class="content-section education-section" aria-labelledby="dctEducationTitle">
+			<div class="section-heading">
+				<p class="eyebrow">Concept notes</p>
+				<h2 id="dctEducationTitle">What is DCT Steganography?</h2>
+			</div>
+			<ul class="concept-list">
+				<li>Images can be divided into 8×8 pixel blocks.</li>
+				<li>The Discrete Cosine Transform represents spatial image information as frequency components.</li>
+				<li>Selected coefficients can be modified to carry message bits.</li>
+				<li>This implementation uses mid-frequency coefficients and avoids the DC coefficient.</li>
+			</ul>
+			<p class="notice">DCT-based embedding is an educational technique, not a guarantee of secrecy or resistance to image processing.</p>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="site-footer__identity">
+			<p>StegaVision <span aria-hidden="true">·</span> Image Steganography &amp; Analysis Platform</p>
+			<p>Digital Image Processing <span aria-hidden="true">·</span> Student: Kundrapu Tharun Kumar <span aria-hidden="true">·</span> Enrollment: 24CS003203</p>
+		</div>
+		<a href="{{ url_for('about_page') }}">Project details</a>
+	</footer>
+</body>
+</html>

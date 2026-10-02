@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Explore educational pixel statistics related to image steganalysis.">
+	<title>Basic Steganalysis | StegaVision</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+	<script src="{{ url_for('static', filename='js/steganalysis.js') }}" defer></script>
+</head>
+<body>
+	<a class="skip-link" href="#mainContent">Skip to content</a>
+	<header class="site-header">
+		<div class="site-header__inner">
+			<a class="brand" href="{{ url_for('index') }}" aria-label="StegaVision home">
+				<span class="brand__name">StegaVision</span>
+				<span class="brand__subtitle">Image Steganography &amp; Analysis Platform</span>
+			</a>
+			<nav class="primary-nav" aria-label="Main navigation">
+				<a href="{{ url_for('index') }}">Home</a>
+				<a href="{{ url_for('lsb_page') }}">LSB Steganography</a>
+				<a href="{{ url_for('dct_page') }}">DCT Steganography</a>
+				<a href="{{ url_for('analysis_page') }}">Image Analysis</a>
+				<a href="{{ url_for('steganalysis_page') }}" aria-current="page">Steganalysis</a>
+				<a href="{{ url_for('about_page') }}">About</a>
+			</nav>
+		</div>
+	</header>
+
+	<main id="mainContent" class="page-shell" data-page="steganalysis">
+		<header class="page-heading">
+			<p class="eyebrow">Statistical inspection</p>
+			<h1>Basic Steganalysis</h1>
+			<p>Educational statistical observations that may help identify unusual image characteristics.</p>
+		</header>
+
+		<aside class="notice notice--important" role="note">
+			This analysis provides statistical observations only. It does not definitively determine whether an image contains hidden information.
+		</aside>
+
+		<section class="tool-panel upload-panel" aria-labelledby="steganalysisUploadTitle">
+			<div class="tool-panel__heading">
+				<p class="eyebrow">Input image</p>
+				<h2 id="steganalysisUploadTitle">Analyze image statistics</h2>
+			</div>
+			<form id="steganalysisForm" class="tool-form" action="{{ url_for('steganalysis_api') }}" method="post" enctype="multipart/form-data" data-api-endpoint="{{ url_for('steganalysis_api') }}">
+				<div class="form-field">
+					<span class="form-label" id="steganalysisUploadLabel">Image file</span>
+					<div class="upload-dropzone" data-dropzone data-input="steganalysisImage" aria-describedby="steganalysisFileName steganalysisErrorMessage">
+						<p class="upload-dropzone__title">Drop an image here</p>
+						<p class="upload-dropzone__hint">PNG, JPG, JPEG, BMP or WEBP</p>
+						<label class="button button--secondary file-picker" for="steganalysisImage">Browse image</label>
+						<input class="visually-hidden file-input" id="steganalysisImage" name="image" type="file" accept="image/png,image/jpeg,image/bmp,image/webp" aria-labelledby="steganalysisUploadLabel" aria-describedby="steganalysisFileName steganalysisErrorMessage" required>
+						<p class="selected-filename" id="steganalysisFileName" aria-live="polite">No file selected</p>
+					</div>
+					<img class="image-preview" id="steganalysisPreview" alt="Preview of the selected image" hidden>
+					<p class="form-message form-message--error" id="steganalysisErrorMessage" role="alert" aria-live="assertive"></p>
+				</div>
+				<button class="button button--primary" id="steganalysisButton" type="submit"><span class="button-label">Analyze Image</span><span class="loading-indicator" id="steganalysisLoading" role="status" aria-live="polite" hidden>Analyzing image...</span></button>
+				<p class="form-message form-message--success" id="steganalysisSuccessMessage" role="status" aria-live="polite"></p>
+			</form>
+		</section>
+
+		<section class="results-section" id="steganalysisResults" aria-label="Steganalysis results" aria-live="polite" hidden>
+			<section class="content-section" aria-labelledby="lsbDistributionTitle">
+				<div class="section-heading">
+					<p class="eyebrow">Bit-level statistics</p>
+					<h2 id="lsbDistributionTitle">LSB Distribution</h2>
+				</div>
+				<dl class="stat-grid" id="lsbDistribution">
+					<div><dt>Total analyzed bits</dt><dd><output id="totalAnalyzedBits"></output></dd></div>
+					<div><dt>LSB 0 count</dt><dd><output id="lsbZeroCount"></output></dd></div>
+					<div><dt>LSB 1 count</dt><dd><output id="lsbOneCount"></output></dd></div>
+					<div><dt>LSB 0 percentage</dt><dd><output id="lsbZeroPercentage"></output></dd></div>
+					<div><dt>LSB 1 percentage</dt><dd><output id="lsbOnePercentage"></output></dd></div>
+				</dl>
+				<div class="distribution-chart" id="lsbDistributionChart" role="img" aria-label="LSB zero and one distribution chart">
+					<div class="distribution-chart__bar" id="lsbZeroBar" aria-hidden="true"></div>
+					<div class="distribution-chart__bar" id="lsbOneBar" aria-hidden="true"></div>
+				</div>
+				<div class="distribution-legend" aria-label="LSB distribution legend">
+					<span>LSB 0</span>
+					<span>LSB 1</span>
+				</div>
+			</section>
+
+			<section class="content-section" aria-labelledby="pixelStatisticsTitle">
+				<div class="section-heading">
+					<p class="eyebrow">Channel values</p>
+					<h2 id="pixelStatisticsTitle">Pixel Statistics</h2>
+				</div>
+				<div class="table-scroll-region">
+					<table class="data-table">
+						<caption>Mean, standard deviation, minimum and maximum for each image channel</caption>
+						<thead>
+							<tr><th scope="col">Channel</th><th scope="col">Mean</th><th scope="col">Standard deviation</th><th scope="col">Minimum</th><th scope="col">Maximum</th></tr>
+						</thead>
+						<tbody id="pixelStatistics"></tbody>
+					</table>
+				</div>
+			</section>
+
+			<section class="content-section" aria-labelledby="observationsTitle">
+				<div class="section-heading">
+					<p class="eyebrow">Interpretation</p>
+					<h2 id="observationsTitle">Basic Observations</h2>
+				</div>
+				<ul class="observation-list" id="basicObservations"></ul>
+			</section>
+
+			<section class="content-section" aria-labelledby="limitationsTitle">
+				<div class="section-heading">
+					<p class="eyebrow">Read with care</p>
+					<h2 id="limitationsTitle">Limitations</h2>
+				</div>
+				<p>Statistical analysis alone cannot definitively determine whether an image contains hidden information.</p>
+				<ul class="limitation-list" id="analysisLimitations"></ul>
+			</section>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="site-footer__identity">
+			<p>StegaVision <span aria-hidden="true">·</span> Image Steganography &amp; Analysis Platform</p>
+			<p>Digital Image Processing <span aria-hidden="true">·</span> Student: Kundrapu Tharun Kumar <span aria-hidden="true">·</span> Enrollment: 24CS003203</p>
+		</div>
+		<a href="{{ url_for('about_page') }}">Project details</a>
+	</footer>
+</body>
+</html>

@@ -1,0 +1,7 @@
+Flask
+Pillow
+numpy
+opencv-python
+scipy
+scikit-image
+Werkzeug

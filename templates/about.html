@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Project background and methods for StegaVision, an academic image steganography project.">
+	<title>About StegaVision</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+	<a class="skip-link" href="#mainContent">Skip to content</a>
+	<header class="site-header">
+		<div class="site-header__inner">
+			<a class="brand" href="{{ url_for('index') }}" aria-label="StegaVision home">
+				<span class="brand__name">StegaVision</span>
+				<span class="brand__subtitle">Image Steganography &amp; Analysis Platform</span>
+			</a>
+			<nav class="primary-nav" aria-label="Main navigation">
+				<a href="{{ url_for('index') }}">Home</a>
+				<a href="{{ url_for('lsb_page') }}">LSB Steganography</a>
+				<a href="{{ url_for('dct_page') }}">DCT Steganography</a>
+				<a href="{{ url_for('analysis_page') }}">Image Analysis</a>
+				<a href="{{ url_for('steganalysis_page') }}">Steganalysis</a>
+				<a href="{{ url_for('about_page') }}" aria-current="page">About</a>
+			</nav>
+		</div>
+	</header>
+
+	<main id="mainContent" class="page-shell" data-page="about">
+		<header class="page-heading">
+			<p class="eyebrow">Project overview</p>
+			<h1>About StegaVision</h1>
+			<p>An academic Digital Image Processing project exploring spatial- and frequency-domain image steganography.</p>
+		</header>
+
+		<section class="project-summary" aria-labelledby="projectTitle">
+			<div>
+				<p class="eyebrow">Project identity</p>
+				<h2 id="projectTitle">Image Steganography Using LSB and DCT</h2>
+			</div>
+			<dl class="project-details">
+				<div><dt>Project</dt><dd>StegaVision</dd></div>
+				<div><dt>Student</dt><dd>Kundrapu Tharun Kumar</dd></div>
+				<div><dt>Enrollment</dt><dd>24CS003203</dd></div>
+				<div><dt>Subject</dt><dd>Digital Image Processing</dd></div>
+			</dl>
+		</section>
+
+		<section class="content-section" aria-labelledby="objectiveTitle">
+			<div class="section-heading">
+				<p class="eyebrow">Purpose</p>
+				<h2 id="objectiveTitle">1. Project Objective</h2>
+			</div>
+			<p>StegaVision provides an interactive way to study how text can be embedded in digital images, how embedding affects image quality, and what basic pixel statistics reveal. It is intended for learning and demonstration, not for cryptographic protection.</p>
+		</section>
+
+		<div class="concept-grid">
+			<section class="concept-section" aria-labelledby="aboutLsbTitle">
+				<p class="eyebrow">Spatial domain</p>
+				<h2 id="aboutLsbTitle">2. LSB Steganography</h2>
+				<p>Least Significant Bit embedding changes the lowest-order bit of selected pixel-channel values. This can represent message bits with small numerical pixel changes, while capacity depends on the number of usable channels and the payload header.</p>
+			</section>
+			<section class="concept-section" aria-labelledby="aboutDctTitle">
+				<p class="eyebrow">Frequency domain</p>
+				<h2 id="aboutDctTitle">3. DCT Steganography</h2>
+				<p>The image is processed in 8×8 blocks. A Discrete Cosine Transform expresses each block in frequency coefficients, and selected mid-frequency coefficients are adjusted to encode bits while avoiding the DC component.</p>
+			</section>
+			<section class="concept-section" aria-labelledby="metricsTitle">
+				<p class="eyebrow">Image quality</p>
+				<h2 id="metricsTitle">4. Image Quality Metrics</h2>
+				<p>Mean Squared Error (MSE) measures average squared pixel difference. Peak Signal-to-Noise Ratio (PSNR) expresses error relative to the pixel range, and Structural Similarity (SSIM) compares local luminance, contrast and structure.</p>
+			</section>
+			<section class="concept-section" aria-labelledby="analysisTitle">
+				<p class="eyebrow">Image inspection</p>
+				<h2 id="analysisTitle">5. Image Analysis</h2>
+				<p>Image analysis reports dimensions, format and channel histograms, and visualizes the least significant bit plane from the actual uploaded pixels.</p>
+			</section>
+			<section class="concept-section" aria-labelledby="steganalysisTitle">
+				<p class="eyebrow">Statistical observations</p>
+				<h2 id="steganalysisTitle">6. Basic Steganalysis</h2>
+				<p>Basic steganalysis summarizes LSB balance and per-channel pixel statistics. These measurements are descriptive and can be affected by image content, processing and compression.</p>
+			</section>
+			<section class="concept-section" aria-labelledby="aboutLimitationsTitle">
+				<p class="eyebrow">Scope</p>
+				<h2 id="aboutLimitationsTitle">7. Limitations</h2>
+				<p>Steganography is not encryption. The methods demonstrated here do not guarantee confidentiality, invisibility or resistance to transformations. Statistical observations alone cannot establish that an image contains hidden data.</p>
+			</section>
+		</div>
+
+		<section class="content-section technology-section" aria-labelledby="technologyTitle">
+			<div class="section-heading">
+				<p class="eyebrow">Implementation</p>
+				<h2 id="technologyTitle">Technologies</h2>
+			</div>
+			<ul class="technology-list">
+				<li>Python</li>
+				<li>Flask</li>
+				<li>OpenCV</li>
+				<li>NumPy</li>
+				<li>Pillow</li>
+				<li>SciPy</li>
+				<li>scikit-image</li>
+				<li>HTML</li>
+				<li>CSS</li>
+				<li>JavaScript</li>
+			</ul>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="site-footer__identity">
+			<p>StegaVision <span aria-hidden="true">·</span> Image Steganography &amp; Analysis Platform</p>
+			<p>Digital Image Processing <span aria-hidden="true">·</span> Student: Kundrapu Tharun Kumar <span aria-hidden="true">·</span> Enrollment: 24CS003203</p>
+		</div>
+		<a href="{{ url_for('index') }}">Return home</a>
+	</footer>
+</body>
+</html>
