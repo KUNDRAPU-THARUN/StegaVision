@@ -62,6 +62,9 @@ python app.py
 
 Open [http://127.0.0.1:5000](http://127.0.0.1:5000/). Flask creates `uploads/` and `outputs/` if they are absent. Uploaded source files are removed after each request; generated output PNGs remain in `outputs/` so their download links work. The Flask development server is for local demonstrations, not production deployment.
 
+### Hosting
+This project is a Flask application, not a Streamlit application. Do not launch or deploy it with `streamlit run app.py`; use `python app.py` locally or deploy it to a Flask/WSGI-compatible host. `opencv-python-headless` is used because this server performs image processing without OpenCV GUI windows and avoids desktop GUI library dependencies on Linux hosts.
+
 ## LSB Method
 The image is converted to RGB. A binary payload is formed as `STEGAV1`, a four-byte big-endian UTF-8 byte length, and the message bytes. Payload bits replace the least significant bit of RGB channel values in row-major order. The encoder writes PNG so the stored bits are not altered by lossy compression. Capacity reserves the complete 11-byte header.
 
